@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <title>Accounting Quiz (Colorful) | হিসাববিজ্ঞান কুইজ</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    /* Color system */
+    :root{
+      --bg: #f7fafc;
+      --text: #0f172a;
+      --muted: #64748b;
+      --border: #d1d5db;
+
+      --primary: #2563eb;   /* blue */
+      --success: #16a34a;   /* green */
+      --warning: #f59e0b;   /* amber */
+      --danger: #ef4444;    /* red */
+      --accent: #9333ea;    /* violet */
+
+      --shadow: 0 10px 24px rgba(15,23,42,.08);
+
+      /* Card background colors */
+      --card-header: #0ea5e9;    /* cyan header */
+      --card-header-ink: #05283a;
+
+      --card-question: #d1fae5;  /* mint */
+      --card-entry:    #fde68a;  /* yellow */
+      --card-accounts: #e9d5ff;  /* lavender */
+      --card-journal:  #ffedd5;  /* peach */
+      --card-ledger:   #bae6fd;  /* sky */
+      --card-trial:    #fbcfe8;  /* pink */
+      --card-pl:       #bbf7d0;  /* green */
+      --card-bs:       #e5e7eb;  /* gray */
+      --card-surface:  #ffffff;  /* white base */
+    }
+
+    /* Base */
+    html, body { height: 100%; }
+    body {
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, 'Noto Sans Bengali', sans-serif;
+      margin: 0;
+      background: linear-gradient(180deg, #f0f5ff 0%, var(--bg) 100%);
+      color: var(--text);
+    }
+
+    /* Container */
+    .shell {
+      max-width: 1280px;
+      margin: 16px auto 32px;
+      padding: 0 16px;
+    }
+
+    /* Header */
+    .header {
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      background: linear-gradient(90deg, #06b6d4 0%, var(--card-header) 100%);
+      color: var(--card-header-ink);
+      border-radius: 16px;
+      padding: 16px 18px;
+      box-shadow: var(--shadow);
+    }
+    .brand { font-weight: 800; letter-spacing: .2px; }
+    .sub { color: #083344; font-weight: 600; }
+
+    /* Level bar */
+    .bar {
+      display:flex; flex-wrap:wrap; gap: 12px; align-items:center;
+      background: var(--card-surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px;
+      box-shadow: var(--shadow);
+      margin-top: 16px;
+    }
+    .badge {
+      display:inline-flex; align-items:center; gap:8px; font-weight:700;
+      padding: 8px 12px; border-radius: 999px; border: 1px solid var(--border);
+      background: #eef2ff; color: #1e40af;
+    }
+    .badge.timer { background:#fee2e2; color:#7f1d1d; border-color:#fecaca; }
+    .badge.streak { background:#dcfce7; color:#064e3b; border-color:#bbf7d0; }
+    .badge.msg { background:#fef3c7; color:#7c2d12; border-color:#fde68a; }
+
+    /* Grid */
+    .grid {
+      display:grid; gap: 16px; margin-top: 16px;
+      grid-template-columns: 1fr;
+    }
+    @media (min-width: 900px) {
+      .grid { grid-template-columns: 1.15fr 1fr; }
+    }
+
+    /* Card styles */
+    .card {
+      border-radius: 16px;
+      padding: 14px 16px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+    }
+    .card h2, .card h3 { margin: 6px 0 10px; }
+    .card.question { background: var(--card-question); }
+    .card.entry    { background: var(--card-entry); }
+    .card.accounts { background: var(--card-accounts); }
+    .card.journal  { background: var(--card-journal); }
+    .card.ledger   { background: var(--card-ledger); }
+    .card.trial    { background: var(--card-trial); }
+    .card.pl       { background: var(--card-pl); }
+    .card.bs       { background: var(--card-bs); }
+
+    /* Controls */
+    .row { display:flex; gap:12px; flex-wrap:wrap; align-items:center; }
+    .stack { display:flex; flex-direction:column; gap:8px; }
+    label { font-weight:700; font-size:0.95rem; }
+    select, input[type="text"], input[type="number"], input[type="date"] {
+      width: 100%; max-width: 380px;
+      padding: 10px 12px; border-radius: 10px;
+      border: 1px solid var(--border);
+      background: #ffffff; color: var(--text);
+      outline: none;
+      transition: border-color .15s ease, box-shadow .15s ease;
+    }
+    select:focus, input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(147,51,234,0.25); }
+
+    .btn {
+      display:inline-flex; align-items:center; gap:8px;
+      border:none; border-radius:10px; padding:10px 14px; cursor:pointer; font-weight:700;
+      transition: transform .06s ease, box-shadow .12s ease, opacity .15s ease;
+    }
+    .btn:active { transform: translateY(1px); }
+    .btn-primary { background: var(--primary); color: #eef2ff; box-shadow: 0 8px 20px rgba(37,99,235,.25); }
+    .btn-success { background: var(--success); color: #052e1a; box-shadow: 0 8px 20px rgba(22,163,74,.22); }
+    .btn-ghost   { background: #ffffff; color: var(--text); border: 1px solid var(--border); }
+    .btn-danger  { background: var(--danger); color: #fee2e2; }
+    .btn-accent  { background: var(--accent); color: #f5f3ff; }
+
+    /* Tables */
+    table { width:100%; border-collapse: collapse; margin-top:12px; }
+    th, td { border: 1px solid var(--border); padding: 10px; text-align: center; background: rgba(255,255,255,0.6); }
+    th { background: rgba(255,255,255,0.9); font-weight:800; }
+    .highlight { animation: glow 900ms ease-out; }
+    @keyframes glow {
+      0% { background:#cffafe; }
+      100% { background: rgba(255,255,255,0.6); }
+    }
+
+    /* Notes */
+    .note { color: var(--muted); font-size: 0.95rem; margin-top: 8px; }
+
+    /* Accessibility */
+    .sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+
+    /* Mobile adjustments */
+    @media (max-width: 599px) {
+      .shell { padding: 0 12px; }
+      .header { flex-direction: column; align-items: flex-start; }
+      select, input { max-width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+
+    <!-- Header -->
+    <div class="header" role="banner" aria-label="App header">
+      <div>
+        <div class="brand">Accounting Adventure <small>| অ্যাকাউন্টিং শেখার রিভোলিউশন!</small></div>
+        <div class="sub">Journal → Ledger → Trial Balance → P&L → Balance Sheet</div>
+      </div>
+      <div class="row" aria-label="Global controls">
+        <button class="btn btn-ghost" onclick="restartLevel()" title="Ctrl+R">↻ Restart</button>
+        <button class="btn btn-accent" onclick="nextQuestion()" title="N">Next Question</button>
+      </div>
+    </div>
+
+    <!-- Level and Status -->
+    <div class="bar" aria-label="Level and status">
+      <div class="row">
+        <label class="sr-only" for="levelSelect">Level select</label>
+        <select id="levelSelect" onchange="switchLevel()" aria-label="Select level">
+          <option value="Beginner">Beginner | বিগিনার</option>
+          <option value="Advanced">Advanced | অ্যাডভান্সড</option>
+        </select>
+        <button class="btn btn-ghost" onclick="applyQuestionDefaults()" id="autoFillBtn">Auto-fill Form | ফর্ম অটো-ফিল</button>
+      </div>
+      <div class="row" aria-live="polite">
+        <span class="badge streak">Streak: <strong id="streakCount">0</strong></span>
+        <span class="badge msg" id="streakMsg">-</span>
+        <span class="badge timer">Timer: <strong id="timerDisplay">—</strong></span>
+      </div>
+      <p class="note">Beginner: Auto-fill available. Advanced: No auto-fill + 60s timer. | বিগিনার: অটো-ফিল থাকবে। অ্যাডভান্সড: অটো-ফিল নেই + ৬০ সেকেন্ড টাইমার।</p>
+    </div>
+
+    <!-- Grid -->
+    <div class="grid" role="main">
+
+      <!-- Left column -->
+      <div class="stack">
+
+        <!-- Question -->
+        <div class="card question" aria-label="Question">
+          <h2>Question | প্রশ্ন</h2>
+          <p id="questionText" class="note"></p>
+          <div class="row">
+            <button class="btn btn-primary" onclick="nextQuestion()" title="N">Next Question | পরবর্তী প্রশ্ন</button>
+          </div>
+          <p class="note">Each level has 100 questions (demo uses 3). | প্রতি লেভেলে ১০০ প্রশ্ন (ডেমোতে ৩)।</p>
+        </div>
+
+        <!-- Entry -->
+        <div class="card entry" aria-label="Entry form">
+          <h2>New journal entry | নতুন জার্নাল এন্ট্রি</h2>
+          <div class="stack">
+            <div class="row">
+              <div class="stack">
+                <label for="debit">Debit account | ডেবিট অ্যাকাউন্ট</label>
+                <select id="debit" aria-label="Debit account">
+                  <option value="">-- Select | নির্বাচন করুন --</option>
+                  <option value="Cash">Cash A/C | নগদ</option>
+                  <option value="Sales">Sales A/C | বিক্রয়</option>
+                  <option value="Purchase">Purchase A/C | ক্রয়</option>
+                  <option value="Rahim">Rahim A/C | রহিম</option>
+                  <option value="Karim">Karim A/C | করিম</option>
+                  <option value="Rent Expense">Rent Expense A/C | ভাড়া ব্যয়</option>
+                  <option value="Furniture">Furniture A/C | আসবাবপত্র</option>
+                  <option value="Ali">Ali A/C | আলি</option>
+                  <option value="Drawings">Drawings A/C | ড্রইংস</option>
+                </select>
+              </div>
+              <div class="stack">
+                <label for="credit">Credit account | ক্রেডিট অ্যাকাউন্ট</label>
+                <select id="credit" aria-label="Credit account">
+                  <option value="">-- Select | নির্বাচন করুন --</option>
+                  <option value="Cash">Cash A/C | নগদ</option>
+                  <option value="Sales">Sales A/C | বিক্রয়</option>
+                  <option value="Purchase">Purchase A/C | ক্রয়</option>
+                  <option value="Rahim">Rahim A/C | রহিম</option>
+                  <option value="Karim">Karim A/C | করিম</option>
+                  <option value="Rent Expense">Rent Expense A/C | ভাড়া ব্যয়</option>
+                  <option value="Furniture">Furniture A/C | আসবাবপত্র</option>
+                  <option value="Ali">Ali A/C | আলি</option>
+                  <option value="Drawings">Drawings A/C | ড্রইংস</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="stack">
+                <label for="amount">Amount | পরিমাণ (৳)</label>
+                <input type="number" id="amount" min="1" step="1" placeholder="e.g., 5000" aria-label="Amount">
+              </div>
+              <div class="stack">
+                <label for="date">Date | তারিখ</label>
+                <input type="date" id="date" aria-label="Date">
+              </div>
+            </div>
+
+            <div class="stack">
+              <label for="narration">Narration (optional) | বিবরণ (ঐচ্ছিক)</label>
+              <input type="text" id="narration" placeholder="Short note | সংক্ষিপ্ত বিবরণ" aria-label="Narration">
+            </div>
+
+            <div class="row">
+              <button class="btn btn-success" onclick="submitAnswer()" title="Enter">Submit Answer | উত্তর জমা</button>
+              <button class="btn btn-ghost" onclick="resetForm()" title="Esc">Clear | পরিষ্কার</button>
+            </div>
+          </div>
+
+          <p id="feedback" class="note" role="status" aria-live="polite"></p>
+        </div>
+
+        <!-- Accounts -->
+        <div class="card accounts" aria-label="Accounts">
+          <h2>Accounts | অ্যাকাউন্টসমূহ</h2>
+          <p class="note">Add custom accounts to dropdowns. | নিজের অ্যাকাউন্ট যোগ করুন।</p>
+          <div class="row">
+            <button class="btn btn-accent" onclick="toggleAddPanel()">➕ Add Account | নতুন অ্যাকাউন্ট</button>
+            <div id="addPanel" class="row" style="display:none;">
+              <input type="text" id="newAccount" placeholder="Account name | অ্যাকাউন্টের নাম" aria-label="New account name">
+              <button class="btn btn-primary" onclick="addAccount()">Submit | সাবমিট</button>
+              <button class="btn btn-danger" onclick="toggleAddPanel()">Close | বন্ধ</button>
+            </div>
+          </div>
+          <div class="row" style="margin-top:10px;">
+            <span class="badge">Active accounts | সক্রিয়</span>
+            <div id="accountList" class="note"></div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Right column -->
+      <div class="stack">
+
+        <div class="card journal" aria-label="Journal entries">
+          <h2>Journal entries | জার্নাল এন্ট্রি</h2>
+          <table id="journalTable" aria-label="Journal table">
+            <tr>
+              <th>Date | তারিখ</th>
+              <th>Debit A/C | ডেবিট</th>
+              <th>Credit A/C | ক্রেডিট</th>
+              <th>Amount | পরিমাণ</th>
+              <th>Narration | বিবরণ</th>
+            </tr>
+          </table>
+          <p class="note">Double-entry: Debit equals Credit. | ডেবিট = ক্রেডিট।</p>
+        </div>
+
+        <div class="card ledger" aria-label="Ledger">
+          <h2>Ledger | লেজার</h2>
+          <table id="ledgerTable">
+            <tr><th>Account | অ্যাকাউন্ট</th><th>Debit (Dr) | ডেবিট</th><th>Credit (Cr) | ক্রেডিট</th></tr>
+          </table>
+        </div>
+
+        <div class="card trial" aria-label="Trial balance">
+          <h2>Trial balance | ট্রায়াল ব্যালান্স</h2>
+          <table id="trialTable">
+            <tr><th>Account | অ্যাকাউন্ট</th><th>Debit | ডেবিট</th><th>Credit | ক্রেডিট</th></tr>
+          </table>
+        </div>
+
+        <div class="card pl" aria-label="Profit and loss">
+          <h2>Profit & loss | লাভ-ক্ষতি</h2>
+          <table id="plTable">
+            <tr><th>Particulars | বিবরণ</th><th>Amount | পরিমাণ</th></tr>
+          </table>
+        </div>
+
+        <div class="card bs" aria-label="Balance sheet">
+          <h2>Balance sheet | ব্যালান্স শীট</h2>
+          <div class="row">
+            <div class="stack" style="flex:1">
+              <h3>Assets | সম্পদ</h3>
+              <table id="bsAssets">
+                <tr><th>Particulars | বিবরণ</th><th>Amount | পরিমাণ</th></tr>
+              </table>
+            </div>
+            <div class="stack" style="flex:1">
+              <h3>Liabilities & equity | দায় ও ইক্যুইটি</h3>
+              <table id="bsLiab">
+                <tr><th>Particulars | বিবরণ</th><th>Amount | পরিমাণ</th></tr>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ---------------------------
+    // Question banks (3 demo each; add more later)
+    // ---------------------------
+    const beginnerBank = [
+  { id: 'B1', textEn: "You sold goods worth 5000৳ to Rahim (credit sale).", textBn: "আপনি রহিমের কাছে ৫০০০৳ পণ্য বিক্রি করেছেন (ক্রেডিট সেল)।", debit: "Rahim", credit: "Sales", amount: 5000, narration: "Sold goods to Rahim" },
+  { id: 'B2', textEn: "You purchased goods worth 3000৳ in cash.", textBn: "আপনি নগদে ৩০০০৳ পণ্য ক্রয় করেছেন।", debit: "Purchase", credit: "Cash", amount: 3000, narration: "Purchased goods in cash" },
+  { id: 'B3', textEn: "You received 4000৳ cash from Karim.", textBn: "আপনি করিমের কাছ থেকে ৪০০০৳ নগদ গ্রহণ করেছেন।", debit: "Cash", credit: "Karim", amount: 4000, narration: "Received cash from Karim" },
+  { id: 'B4', textEn: "You deposited 10,000৳ cash into bank account.", textBn: "আপনি ১০,০০০৳ নগদ ব্যাংক একাউন্টে জমা দিয়েছেন।", debit: "Bank", credit: "Cash", amount: 10000, narration: "Cash deposited to bank" },
+  { id: 'B5', textEn: "You purchased furniture worth 8,000৳ in cash.", textBn: "আপনি নগদে ৮,০০০৳ আসবাবপত্র ক্রয় করেছেন।", debit: "Furniture", credit: "Cash", amount: 8000, narration: "Purchased furniture in cash" },
+  { id: 'B6', textEn: "You sold goods to Sohan for 6,000৳ on credit.", textBn: "আপনি সোহানের কাছে ৬,০০০৳ পণ্য ক্রেডিটে বিক্রি করেছেন।", debit: "Sohan", credit: "Sales", amount: 6000, narration: "Credit sale to Sohan" },
+  { id: 'B7', textEn: "You paid salary 7,000৳ to staff in cash.", textBn: "আপনি কর্মচারীদের বেতন ৭,০০০৳ নগদে পরিশোধ করেছেন।", debit: "Salary Expense", credit: "Cash", amount: 7000, narration: "Paid salary in cash" },
+  { id: 'B8', textEn: "You received commission 2,500৳ in cash.", textBn: "আপনি ২,৫০০৳ কমিশন নগদে গ্রহণ করেছেন।", debit: "Cash", credit: "Commission Income", amount: 2500, narration: "Received commission" },
+  { id: 'B9', textEn: "You purchased goods from M/S-Al-Hera Orders Supplier worth 12,000৳ on credit.", textBn: "আপনি M/S-Al-Hera Orders Supplier এর কাছ থেকে ১২,০০০৳ পণ্য ক্রেডিটে ক্রয় করেছেন।", debit: "Purchase", credit: "M/S-Al-Hera Orders Supplier", amount: 12000, narration: "Credit purchase from Al-Hera" },
+  { id: 'B10', textEn: "You paid electricity bill 1,800৳ in cash.", textBn: "আপনি বিদ্যুত বিল ১,৮০০৳ নগদে পরিশোধ করেছেন।", debit: "Electricity Expense", credit: "Cash", amount: 1800, narration: "Paid electricity bill" },
+  { id: 'B11', textEn: "You received interest 900৳ from bank.", textBn: "আপনি ব্যাংক থেকে ৯০০৳ সুদ গ্রহণ করেছেন।", debit: "Cash", credit: "Interest Income", amount: 900, narration: "Received interest" },
+  { id: 'B12', textEn: "You purchased goods from M/S-Mahbub Flour Mills worth 15,000৳ in cash.", textBn: "আপনি M/S-Mahbub Flour Mills থেকে ১৫,০০০৳ পণ্য নগদে ক্রয় করেছেন।", debit: "Purchase", credit: "Cash", amount: 15000, narration: "Cash purchase from Mahbub Flour Mills" },
+  { id: 'B13', textEn: "You sold goods to Rajib for 9,000৳ on credit.", textBn: "আপনি রাজীবের কাছে ৯,০০০৳ পণ্য ক্রেডিটে বিক্রি করেছেন।", debit: "Rajib", credit: "Sales", amount: 9000, narration: "Credit sale to Rajib" },
+  { id: 'B14', textEn: "You paid rent 4,000৳ in cash.", textBn: "আপনি ভাড়া ৪,০০০৳ নগদে পরিশোধ করেছেন।", debit: "Rent Expense", credit: "Cash", amount: 4000, narration: "Paid rent" },
+  { id: 'B15', textEn: "You purchased computer worth 25,000৳ by cheque.", textBn: "আপনি চেকের মাধ্যমে ২৫,০০০৳ কম্পিউটার ক্রয় করেছেন।", debit: "Computer", credit: "Bank", amount: 25000, narration: "Purchased computer by cheque" },
+  { id: 'B16', textEn: "You received cash 5,500৳ from Rahim against previous credit sale.", textBn: "আপনি রহিমের কাছ থেকে আগের ক্রেডিট বিক্রয়ের বিপরীতে ৫,৫০০৳ নগদ গ্রহণ করেছেন।", debit: "Cash", credit: "Rahim", amount: 5500, narration: "Received from Rahim" },
+  { id: 'B17', textEn: "You paid M/S-Al-Hera Orders Supplier 8,000৳ in cash for previous purchases.", textBn: "আপনি M/S-Al-Hera Orders Supplier কে আগের ক্রয়ের জন্য ৮,০০০৳ নগদ পরিশোধ করেছেন।", debit: "M/S-Al-Hera Orders Supplier", credit: "Cash", amount: 8000, narration: "Payment to Al-Hera Supplier" },
+  { id: 'B18', textEn: "You purchased goods from M/S-Rahmania Traders worth 11,000৳ on credit.", textBn: "আপনি M/S-Rahmania Traders এর কাছ থেকে ১১,০০০৳ পণ্য ক্রেডিটে ক্রয় করেছেন।", debit: "Purchase", credit: "M/S-Rahmania Traders", amount: 11000, narration: "Credit purchase from Rahmania Traders" },
+  { id: 'B19', textEn: "You sold goods for 7,200৳ in cash.", textBn: "আপনি ৭,২০০৳ পণ্য নগদে বিক্রি করেছেন।", debit: "Cash", credit: "Sales", amount: 7200, narration: "Cash sale" },
+  { id: 'B20', textEn: "You paid telephone bill 1,200৳ in cash.", textBn: "আপনি টেলিফোন বিল ১,২০০৳ নগদে পরিশোধ করেছেন।", debit: "Telephone Expense", credit: "Cash", amount: 1200, narration: "Paid telephone bill" },
+  { id: 'B21', textEn: "You withdrew 3,000৳ cash from bank for office use.", textBn: "আপনি অফিস কাজে ব্যবহারের জন্য ব্যাংক থেকে ৩,০০০৳ নগদ উত্তোলন করেছেন।", debit: "Cash", credit: "Bank", amount: 3000, narration: "Cash withdrawal from bank" },
+  { id: 'B22', textEn: "You purchased goods from M/S-Jasim Uddin Chow Trader worth 6,500৳ in cash.", textBn: "আপনি M/S-Jasim Uddin Chow Trader থেকে ৬,৫০০৳ পণ্য নগদে ক্রয় করেছেন।", debit: "Purchase", credit: "Cash", amount: 6500, narration: "Cash purchase from Jasim Uddin" },
+  { id: 'B23', textEn: "You received cash 4,800৳ from Sohan.", textBn: "আপনি সোহানের কাছ থেকে ৪,৮০০৳ নগদ গ্রহণ করেছেন।", debit: "Cash", credit: "Sohan", amount: 4800, narration: "Received from Sohan" },
+  { id: 'B24', textEn: "You paid wages 2,500৳ to laborers in cash.", textBn: "আপনি শ্রমিকদের মজুরি ২,৫০০৳ নগদে পরিশোধ করেছেন।", debit: "Wages Expense", credit: "Cash", amount: 2500, narration: "Paid wages" },
+  { id: 'B25', textEn: "You purchased goods from M/S-Nasima Auto Rice Mills worth 18,000৳ on credit.", textBn: "আপনি M/S-Nasima Auto Rice Mills থেকে ১৮,০০০৳ পণ্য ক্রেডিটে ক্রয় করেছেন।", debit: "Purchase", credit: "M/S-Nasima Auto Rice Mills", amount: 18000, narration: "Credit purchase from Nasima Rice Mills" },
+  { id: 'B26', textEn: "You sold goods to Mehedi for 8,500৳ on credit.", textBn: "আপনি মেহেদীর কাছে ৮,৫০০৳ পণ্য ক্রেডিটে বিক্রি করেছেন।", debit: "Mehedi", credit: "Sales", amount: 8500, narration: "Credit sale to Mehedi" },
+  { id: 'B27', textEn: "You paid transport charge 1,500৳ in cash.", textBn: "আপনি পরিবহন খরচ ১,৫০০৳ নগদে পরিশোধ করেছেন।", debit: "Transport Expense", credit: "Cash", amount: 1500, narration: "Paid transport charge" },
+  { id: 'B28', textEn: "You purchased goods from M/S-Chemical Plus worth 9,500৳ in cash.", textBn: "আপনি M/S-Chemical Plus থেকে ৯,৫০০৳ পণ্য নগদে ক্রয় করেছেন।", debit: "Purchase", credit: "Cash", amount: 9500, narration: "Cash purchase from Chemical Plus" },
+  { id: 'B29', textEn: "You received cash 6,200৳ from Rajib.", textBn: "আপনি রাজীবের কাছ থেকে ৬,২০০৳ নগদ গ্রহণ করেছেন।", debit: "Cash", credit: "Rajib", amount: 6200, narration: "Received from Rajib" },
+  { id: 'B30', textEn: "You paid advertisement expense 3,500৳ by cheque.", textBn: "আপনি চেকের মাধ্যমে বিজ্ঞাপন ব্যয় ৩,৫০০৳ পরিশোধ করেছেন।", debit: "Advertisement Expense", credit: "Bank", amount: 3500, narration: "Paid advertisement by cheque" },
+  { id: 'B31', textEn: "You purchased goods from M/S-S.A Enterprise worth 7,800৳ on credit.", textBn: "আপনি M/S-S.A Enterprise এর কাছ থেকে ৭,৮০০৳ পণ্য ক্রেডিটে ক্রয় করেছেন।", debit: "Purchase", credit: "M/S-S.A Enterprise", amount: 7800, narration: "Credit purchase from SA Enterprise" },
+  { id: 'B32', textEn: "You sold goods for 10,500৳ in cash.", textBn: "আপনি ১০,৫০০৳ পণ্য নগদে বিক্রি করেছেন।", debit: "Cash", credit: "Sales", amount: 10500, narration: "Cash sale" },
+  { id: 'B33', textEn: "You paid insurance premium 2,800৳ in cash.", textBn: "আপনি বীমা প্রিমিয়াম ২,৮০০৳ নগদে পরিশোধ করেছেন।", debit: "Insurance Expense", credit: "Cash", amount: 2800, narration: "Paid insurance premium" },
+  { id: 'B34', textEn: "You purchased goods from M/S-Janani Traders worth 13,500৳ in cash.", textBn: "আপনি M/S-Janani Traders থেকে ১৩,৫০০৳ পণ্য নগদে ক্রয় করেছেন।", debit: "Purchase", credit: "Cash", amount: 13500, narration: "Cash purchase from Janani Traders" },
+  { id: 'B35', textEn: "You received cash 3,700৳ from Mehedi.", textBn: "আপনি মেহেদীর কাছ থেকে ৩,৭০০৳ নগদ গ্রহণ করেছেন।", debit: "Cash", credit: "Mehedi", amount: 3700, narration: "Received from Mehedi" },
+  { id: 'B36', textEn: "You paid stationery expense 850৳ in cash.", textBn: "আপনি অফিস সরঞ্জাম ব্যয় ৮৫০৳ নগদে পরিশোধ করেছেন।", debit: "Stationery Expense", credit: "Cash", amount: 850, narration: "Paid stationery expense" },
+  { id: 'B37', textEn: "You purchased goods from M/S-Globe Biscuit& Dairy Milk Ltd. worth 21,000৳ on credit.", textBn: "আপনি M/S-Globe Biscuit& Dairy Milk Ltd. থেকে ২১,০০০৳ পণ্য ক্রেডিটে ক্রয় করেছেন।", debit: "Purchase", credit: "M/S-Globe Biscuit& Dairy Milk Ltd.", amount: 21000, narration: "Credit purchase from Globe Biscuit" },
+  { id: 'B38', textEn: "You sold goods to Arif for 11,200৳ on credit.", textBn: "আপনি আরিফের কাছে ১১,২০০৳ পণ্য ক্রেডিটে বিক্রি করেছেন।", debit: "Arif", credit: "Sales", amount: 11200, narration: "Credit sale to Arif" },
+  { id: 'B39', textEn: "You paid bank loan interest 1,600৳ in cash.", textBn: "আপনি ব্যাংক লোনের সুদ ১,৬০০৳ নগদে পরিশোধ করেছেন।", debit: "Interest Expense", credit: "Cash", amount: 1600, narration: "Paid loan interest" },
+  { id: 'B40', textEn: "You purchased goods from M/S-Insaf Trading worth 14,800৳ on credit.", textBn: "আপনি M/S-Insaf Trading এর কাছ থেকে ১৪,৮০০৳ পণ্য ক্রেডিটে ক্রয় করেছেন।", debit: "Purchase", credit: "M/S-Insaf Trading", amount: 14800, narration: "Credit purchase from Insaf Trading" },
+  { id: 'B41', textEn: "You received cash 7,900৳ from Arif.", textBn: "আপনি আরিফের কাছ থেকে ৭,৯০০৳ নগদ গ্রহণ করেছেন।", debit: "Cash", credit: "Arif", amount: 7900, narration: "Received from Arif" },
+  { id: 'B42', textEn: "You paid office maintenance expense 2,200৳ in cash.", textBn: "আপনি অফিস রক্ষণাবেক্ষণ ব্যয় ২,২০০৳ নগদে পরিশোধ করেছেন।", debit: "Maintenance Expense", credit: "Cash", amount: 2200, narration: "Paid maintenance expense" },
+  { id: 'B43', textEn: "You purchased goods from M/S-Sonali Trading worth 16,500৳ in cash.", textBn: "আপনি M/S-Sonali Trading থেকে ১৬,৫০০৳ পণ্য নগদে ক্রয় করেছেন।", debit: "Purchase", credit: "Cash", amount: 16500, narration: "Cash purchase from Sonali Trading" },
+  { id: 'B44', textEn: "You sold goods for 9,800৳ in cash.", textBn: "আপনি ৯,৮০০৳ পণ্য নগদে বিক্রি করেছেন।", debit: "Cash", credit: "Sales", amount: 9800, narration: "Cash sale" },
+  { id: 'B45', textEn: "You paid legal fee 4,500৳ by cheque.", textBn: "আপনি চেকের মাধ্যমে আইনী ফি ৪,৫০০৳ পরিশোধ করেছেন।", debit: "Legal Expense", credit: "Bank", amount: 4500, narration: "Paid legal fee by cheque" },
+  { id: 'B46', textEn: "You purchased goods from M/S-Rahmania Traders worth 12,300৳ on credit.", textBn: "আপনি M/S-Rahmania Traders এর কাছ থেকে ১২,৩০০৳ পণ্য ক্রেডিটে ক্রয় করেছেন।", debit: "Purchase", credit: "M/S-Rahmania Traders", amount: 12300, narration: "Credit purchase from Rahmania Traders" },
+  { id: 'B47', textEn: "You sold goods to Shakib for 13,500৳ on credit.", textBn: "আপনি শাকিবের কাছে ১৩,৫০০৳ পণ্য ক্রেডিটে বিক্রি করেছেন।", debit: "Shakib", credit: "Sales", amount: 13500, narration: "Credit sale to Shakib" },
+  { id: 'B48', textEn: "You paid water bill 950৳ in cash.", textBn: "আপনি পানি বিল ৯৫০৳ নগদে পরিশোধ করেছেন।", debit: "Water Expense", credit: "Cash", amount: 950, narration: "Paid water bill" },
+  { id: 'B49', textEn: "You purchased goods from M/S-Mahbub Flour Mills worth 17,200৳ in cash.", textBn: "আপনি M/S-Mahbub Flour Mills থেকে ১৭,২০০৳ পণ্য নগদে ক্রয় করেছেন।", debit: "Purchase", credit: "Cash", amount: 17200, narration: "Cash purchase from Mahbub Flour Mills" },
+  { id: 'B50', textEn: "You received cash 5,400৳ from Shakib.", textBn: "আপনি শাকিবের কাছ থেকে ৫,৪০০৳ নগদ গ্রহণ করেছেন।", debit: "Cash", credit: "Shakib", amount: 5400, narration: "Received from Shakib" }
+];
+    const advancedBank = [
+  { id: 'A1', textEn: "You paid 2000৳ rent in cash.", textBn: "আপনি নগদে ২০০০৳ ভাড়া পরিশোধ করেছেন।", debit: "Rent Expense", credit: "Cash", amount: 2000, narration: "Paid rent in cash" },
+  { id: 'A2', textEn: "You purchased furniture worth 7000৳ on credit from Ali.", textBn: "আপনি আলি থেকে ৭০০০৳ আসবাবপত্র ক্রয় করেছেন (ক্রেডিটে)।", debit: "Furniture", credit: "Ali", amount: 7000, narration: "Purchased furniture on credit from Ali" },
+  { id: 'A3', textEn: "You withdrew 1500৳ cash for personal use.", textBn: "আপনি ব্যক্তিগত কাজে ১৫০০৳ নগদ উত্তোলন করেছেন।", debit: "Drawings", credit: "Cash", amount: 1500, narration: "Cash withdrawn for drawings" },
+  { id: 'A4', textEn: "You purchased machinery worth 50,000৳ by cheque.", textBn: "আপনি চেকের মাধ্যমে ৫০,০০০৳ মেশিনারি ক্রয় করেছেন।", debit: "Machinery", credit: "Bank", amount: 50000, narration: "Purchased machinery by cheque" },
+  { id: 'A5', textEn: "You returned damaged goods worth 3,000৳ to M/S-Al-Hera Orders Supplier.", textBn: "ক্ষতিগ্রস্থ পণ্য ৩,০০০৳ মূল্যের M/S-Al-Hera Orders Supplier কে ফেরত দিয়েছেন।", debit: "M/S-Al-Hera Orders Supplier", credit: "Purchase Returns", amount: 3000, narration: "Return to Al-Hera Supplier" },
+  { id: 'A6', textEn: "You received commission 4,500৳ by cheque.", textBn: "আপনি চেকের মাধ্যমে ৪,৫০০৳ কমিশন গ্রহণ করেছেন।", debit: "Bank", credit: "Commission Income", amount: 4500, narration: "Received commission by cheque" },
+  { id: 'A7', textEn: "You paid salary 12,000৳ by bank transfer.", textBn: "আপনি ব্যাংক ট্রান্সফারের মাধ্যমে ১২,০০০৳ বেতন পরিশোধ করেছেন।", debit: "Salary Expense", credit: "Bank", amount: 12000, narration: "Paid salary by bank transfer" },
+  { id: 'A8', textEn: "You purchased goods on credit from M/S-Mahbub Flour Mills worth 25,000৳.", textBn: "আপনি M/S-Mahbub Flour Mills থেকে ২৫,০০০৳ পণ্য ক্রেডিটে ক্রয় করেছেন।", debit: "Purchase", credit: "M/S-Mahbub Flour Mills", amount: 25000, narration: "Credit purchase from Mahbub Flour Mills" },
+  { id: 'A9', textEn: "You sold goods to Rahim and received 50% cash 6,000৳ and 50% credit.", textBn: "আপনি রহিমের কাছে পণ্য বিক্রি করে ৫০% নগদ ৬,০০০৳ এবং ৫০% ক্রেডিট পেয়েছেন।", debit: "Cash", credit: "Sales", amount: 6000, narration: "Partial cash sale to Rahim" },
+  { id: 'A10', textEn: "You purchased office equipment worth 35,000৳ by cheque.", textBn: "আপনি চেকের মাধ্যমে ৩৫,০০০৳ অফিস সরঞ্জাম ক্রয় করেছেন।", debit: "Office Equipment", credit: "Bank", amount: 35000, narration: "Purchased office equipment" },
+  { id: 'A11', textEn: "You paid M/S-Rahmania Traders 15,000৳ by cheque for previous credit purchases.", textBn: "আপনি M/S-Rahmania Traders কে আগের ক্রেডিট ক্রয়ের জন্য ১৫,০০০৳ চেকের মাধ্যমে পরিশোধ করেছেন।", debit: "M/S-Rahmania Traders", credit: "Bank", amount: 15000, narration: "Payment to Rahmania Traders by cheque" },
+  { id: 'A12', textEn: "You received interest on fixed deposit 8,000৳ by bank transfer.", textBn: "আপনি ফিক্সড ডিপোজিটের সুদ ৮,০০০৳ ব্যাংক ট্রান্সফারে গ্রহণ করেছেন।", debit: "Bank", credit: "Interest Income", amount: 8000, narration: "Received interest on FD" },
+  { id: 'A13', textEn: "You purchased raw materials worth 42,000৳ on credit from M/S-Chemical Plus.", textBn: "আপনি M/S-Chemical Plus এর কাছ থেকে ৪২,০০০৳ কাঁচামাল ক্রেডিটে ক্রয় করেছেন।", debit: "Raw Materials", credit: "M/S-Chemical Plus", amount: 42000, narration: "Credit purchase of raw materials" },
+  { id: 'A14', textEn: "You paid insurance premium 5,500৳ by cheque.", textBn: "আপনি চেকের মাধ্যমে বীমা প্রিমিয়াম ৫,৫০০৳ পরিশোধ করেছেন।", debit: "Insurance Expense", credit: "Bank", amount: 5500, narration: "Paid insurance by cheque" },
+  { id: 'A15', textEn: "You sold goods to Karim worth 18,000৳ with 10% cash discount (received 16,200৳).", textBn: "আপনি করিমের কাছে ১৮,০০০৳ পণ্য বিক্রি করেছেন ১০% ক্যাশ ডিসকাউন্টে (১৬,২০০৳ গ্রহণ করেছেন)।", debit: "Cash", credit: "Sales", amount: 16200, narration: "Sale with cash discount" },
+  { id: 'A16', textEn: "You purchased vehicle worth 300,000৳ with 20% down payment (60,000৳) by cheque and rest on credit.", textBn: "আপনি গাড়ি ক্রয় করেছেন ৩,০০,০০০৳ মূল্যে, ২০% ডাউন পেমেন্ট (৬০,০০০৳) চেকের মাধ্যমে এবং বাকি ক্রেডিটে।", debit: "Vehicle", credit: "Bank", amount: 60000, narration: "Down payment for vehicle" },
+  { id: 'A17', textEn: "You received cash from debtors 22,000৳ with 2% cash discount (received 21,560৳).", textBn: "আপনি দেনাদারদের কাছ থেকে ২২,০০০৳ নগদ গ্রহণ করেছেন ২% ক্যাশ ডিসকাউন্টে (২১,৫৬০৳ গ্রহণ করেছেন)।", debit: "Cash", credit: "Debtors", amount: 21560, narration: "Received from debtors with discount" },
+  { id: 'A18', textEn: "You paid creditors 28,000৳ with 5% discount (paid 26,600৳).", textBn: "আপনি পাওনাদারদের ২৮,০০০৳ পরিশোধ করেছেন ৫% ডিসকাউন্টে (২৬,৬০০৳ পরিশোধ করেছেন)।", debit: "Creditors", credit: "Cash", amount: 26600, narration: "Paid creditors with discount" },
+  { id: 'A19', textEn: "You purchased goods from M/S-Jasim Uddin Chow Trader worth 19,500৳ on credit.", textBn: "আপনি M/S-Jasim Uddin Chow Trader থেকে ১৯,৫০০৳ পণ্য ক্রেডিটে ক্রয় করেছেন।", debit: "Purchase", credit: "M/S-Jasim Uddin Chow Trader", amount: 19500, narration: "Credit purchase from Jasim Uddin" },
+  { id: 'A20', textEn: "You sold goods on credit to M/S-S.A Enterprise worth 32,000৳.", textBn: "আপনি M/S-S.A Enterprise এর কাছে ৩২,০০০৳ পণ্য ক্রেডিটে বিক্রি করেছেন।", debit: "M/S-S.A Enterprise", credit: "Sales", amount: 32000, narration: "Credit sale to SA Enterprise" },
+  { id: 'A21', textEn: "You paid electricity bill 3,800৳ by bank transfer.", textBn: "আপনি ব্যাংক ট্রান্সফারের মাধ্যমে বিদ্যুত বিল ৩,৮০০৳ পরিশোধ করেছেন।", debit: "Electricity Expense", credit: "Bank", amount: 3800, narration: "Paid electricity by transfer" },
+  { id: 'A22', textEn: "You received dividend income 12,500৳ by cheque.", textBn: "আপনি চেকের মাধ্যমে ডিভিডেন্ড আয় ১২,৫০০৳ গ্রহণ করেছেন।", debit: "Bank", credit: "Dividend Income", amount: 12500, narration: "Received dividend" },
+  { id: 'A23', textEn: "You purchased land worth 500,000৳ with 30% cash (150,000৳) and rest by bank loan.", textBn: "আপনি জমি ক্রয় করেছেন ৫,০০,০০০৳ মূল্যে, ৩০% নগদ (১,৫০,০০০৳) এবং বাকি ব্যাংক লোনে।", debit: "Land", credit: "Cash", amount: 150000, narration: "Partial payment for land" },
+  { id: 'A24', textEn: "You paid income tax 45,000৳ by cheque.", textBn: "আপনি চেকের মাধ্যমে আয়কর ৪৫,০০০৳ পরিশোধ করেছেন।", debit: "Income Tax Expense", credit: "Bank", amount: 45000, narration: "Paid income tax" },
+  { id: 'A25', textEn: "You sold old furniture worth 8,000৳ for cash (book value was 10,000৳).", textBn: "আপনি পুরাতন আসবাবপত্র ৮,০০০৳ নগদে বিক্রি করেছেন (বুক ভ্যালু ছিল ১০,০০০৳)।", debit: "Cash", credit: "Furniture", amount: 8000, narration: "Sold old furniture" },
+  { id: 'A26', textEn: "You purchased goods from M/S-Janani Traders worth 27,500৳ with 2/10, n/30 terms.", textBn: "আপনি M/S-Janani Traders থেকে ২৭,৫০০৳ পণ্য ক্রয় করেছেন ২/১০, এন/৩০ শর্তে।", debit: "Purchase", credit: "M/S-Janani Traders", amount: 27500, narration: "Purchase with credit terms" },
+  { id: 'A27', textEn: "You paid freight charges 3,200৳ in cash for goods purchased.", textBn: "আপনি ক্রয়কৃত পণ্যের জন্য ফ্রেইট চার্জ ৩,২০০৳ নগদে পরিশোধ করেছেন।", debit: "Freight Inward", credit: "Cash", amount: 3200, narration: "Paid freight charges" },
+  { id: 'A28', textEn: "You received cash 38,000৳ from M/S-Globe Biscuit& Dairy Milk Ltd. against credit sales.", textBn: "আপনি M/S-Globe Biscuit& Dairy Milk Ltd. এর কাছ থেকে ক্রেডিট বিক্রয়ের বিপরীতে ৩৮,০০০৳ নগদ গ্রহণ করেছেন।", debit: "Cash", credit: "M/S-Globe Biscuit& Dairy Milk Ltd.", amount: 38000, narration: "Received from Globe Biscuit" },
+  { id: 'A29', textEn: "You paid advertisement expense 7,500৳ by cheque.", textBn: "আপনি চেকের মাধ্যমে বিজ্ঞাপন ব্যয় ৭,৫০০৳ পরিশোধ করেছেন।", debit: "Advertisement Expense", credit: "Bank", amount: 7500, narration: "Paid advertisement" },
+  { id: 'A30', textEn: "You purchased goods from M/S-Insaf Trading worth 33,000৳ on credit.", textBn: "আপনি M/S-Insaf Trading এর কাছ থেকে ৩৩,০০০৳ পণ্য ক্রেডিটে ক্রয় করেছেন।", debit: "Purchase", credit: "M/S-Insaf Trading", amount: 33000, narration: "Credit purchase from Insaf Trading" },
+  { id: 'A31', textEn: "You sold goods to M/S-Sonali Trading worth 41,000৳ on credit.", textBn: "আপনি M/S-Sonali Trading এর কাছে ৪১,০০০৳ পণ্য ক্রেডিটে বিক্রি করেছেন।", debit: "M/S-Sonali Trading", credit: "Sales", amount: 41000, narration: "Credit sale to Sonali Trading" },
+  { id: 'A32', textEn: "You paid rent advance 24,000৳ by cheque for one year.", textBn: "আপনি এক বছরের জন্য অগ্রিম ভাড়া ২৪,০০০৳ চেকের মাধ্যমে পরিশোধ করেছেন।", debit: "Prepaid Rent", credit: "Bank", amount: 24000, narration: "Paid rent in advance" },
+  { id: 'A33', textEn: "You received commission 9,500৳ by bank transfer.", textBn: "আপনি ব্যাংক ট্রান্সফারের মাধ্যমে কমিশন ৯,৫০০৳ গ্রহণ করেছেন।", debit: "Bank", credit: "Commission Income", amount: 9500, narration: "Received commission by transfer" },
+  { id: 'A34', textEn: "You purchased packing materials worth 6,800৳ in cash.", textBn: "আপনি নগদে ৬,৮০০৳ প্যাকিং ম্যাটেরিয়াল ক্রয় করেছেন।", debit: "Packing Materials", credit: "Cash", amount: 6800, narration: "Purchased packing materials" },
+  { id: 'A35', textEn: "You paid professional fee 15,000৳ to CA by cheque.", textBn: "আপনি চার্টার্ড অ্যাকাউন্টেন্টকে পেশাদার ফি ১৫,০০০৳ চেকের মাধ্যমে পরিশোধ করেছেন।", debit: "Professional Fee Expense", credit: "Bank", amount: 15000, narration: "Paid CA fee" },
+  { id: 'A36', textEn: "You sold goods to M/S-Nasima Auto Rice Mills worth 55,000৳ on credit.", textBn: "আপনি M/S-Nasima Auto Rice Mills এর কাছে ৫৫,০০০৳ পণ্য ক্রেডিটে বিক্রি করেছেন।", debit: "M/S-Nasima Auto Rice Mills", credit: "Sales", amount: 55000, narration: "Credit sale to Nasima Rice Mills" },
+  { id: 'A37', textEn: "You paid customs duty 18,500৳ by cheque for imported goods.", textBn: "আপনি আমদানিকৃত পণ্যের জন্য কাস্টম ডিউটি ১৮,৫০০৳ চেকের মাধ্যমে পরিশোধ করেছেন।", debit: "Customs Duty", credit: "Bank", amount: 18500, narration: "Paid customs duty" },
+  { id: 'A38', textEn: "You received interest on savings account 2,300৳ by bank credit.", textBn: "আপনি সেভিংস অ্যাকাউন্টের সুদ ২,৩০০৳ ব্যাংক ক্রেডিটে গ্রহণ করেছেন।", debit: "Bank", credit: "Interest Income", amount: 2300, narration: "Received savings interest" },
+  { id: 'A39', textEn: "You purchased goods from M/S-Rahmania Traders worth 29,000৳ with trade discount 10% (paid 26,100৳).", textBn: "আপনি M/S-Rahmania Traders থেকে ২৯,০০০৳ পণ্য ক্রয় করেছেন ১০% ট্রেড ডিসকাউন্টে (২৬,১০০৳ পরিশোধ করেছেন)।", debit: "Purchase", credit: "Cash", amount: 26100, narration: "Purchase with trade discount" },
+  { id: 'A40', textEn: "You sold goods for cash 48,000৳ with 5% VAT (collected 50,400৳).", textBn: "আপনি ৪৮,০০০৳ পণ্য নগদে বিক্রি করেছেন ৫% ভ্যাট সহ (৫০,৪০০৳ গ্রহণ করেছেন)।", debit: "Cash", credit: "Sales", amount: 48000, narration: "Cash sale with VAT" },
+  { id: 'A41', textEn: "You paid telephone bill 2,700৳ by mobile banking.", textBn: "আপনি মোবাইল ব্যাংকিং এর মাধ্যমে টেলিফোন বিল ২,৭০০৳ পরিশোধ করেছেন।", debit: "Telephone Expense", credit: "Bank", amount: 2700, narration: "Paid bill by mobile banking" },
+  { id: 'A42', textEn: "You received cash 67,000৳ from M/S-Al-Hera Orders Supplier as advance against future orders.", textBn: "আপনি M/S-Al-Hera Orders Supplier এর কাছ থেকে ভবিষ্যত অর্ডারের জন্য অগ্রিম ৬৭,০০০৳ নগদ গ্রহণ করেছেন।", debit: "Cash", credit: "Advance from Customers", amount: 67000, narration: "Received advance from Al-Hera" },
+  { id: 'A43', textEn: "You purchased computer software worth 25,000৳ by credit card.", textBn: "আপনি ক্রেডিট কার্ডের মাধ্যমে ২৫,০০০৳ কম্পিউটার সফটওয়্যার ক্রয় করেছেন।", debit: "Software", credit: "Credit Card Payable", amount: 25000, narration: "Purchased software by credit card" },
+  { id: 'A44', textEn: "You paid employee provident fund 8,500৳ by cheque.", textBn: "আপনি চেকের মাধ্যমে কর্মচারী ভবিষ্যত তহবিল ৮,৫০০৳ পরিশোধ করেছেন।", debit: "Provident Fund Expense", credit: "Bank", amount: 8500, narration: "Paid PF contribution" },
+  { id: 'A45', textEn: "You sold goods to M/S-Mahbub Flour Mills worth 37,000৳ on 60 days credit.", textBn: "আপনি M/S-Mahbub Flour Mills এর কাছে ৩৭,০০০৳ পণ্য ৬০ দিনের ক্রেডিটে বিক্রি করেছেন।", debit: "M/S-Mahbub Flour Mills", credit: "Sales", amount: 37000, narration: "Credit sale 60 days" },
+  { id: 'A46', textEn: "You paid trade license renewal fee 12,000৳ in cash.", textBn: "আপনি নগদে ট্রেড লাইসেন্স নবায়ন ফি ১২,০০০৳ পরিশোধ করেছেন।", debit: "License Fee Expense", credit: "Cash", amount: 12000, narration: "Paid trade license fee" },
+  { id: 'A47', textEn: "You received insurance claim 85,000৳ by bank transfer for damaged goods.", textBn: "আপনি ক্ষতিগ্রস্থ পণ্যের জন্য বীমা দাবি ৮৫,০০০৳ ব্যাংক ট্রান্সফারে গ্রহণ করেছেন।", debit: "Bank", credit: "Insurance Claim Receivable", amount: 85000, narration: "Received insurance claim" },
+  { id: 'A48', textEn: "You purchased goods from M/S-Chemical Plus worth 46,000৳ with 15% advance (6,900৳) paid by cheque.", textBn: "আপনি M/S-Chemical Plus থেকে ৪৬,০০০৳ পণ্য ক্রয় করেছেন ১৫% অগ্রিম (৬,৯০০৳) চেকের মাধ্যমে পরিশোধ করে।", debit: "Advance to Suppliers", credit: "Bank", amount: 6900, narration: "Paid advance to Chemical Plus" },
+  { id: 'A49', textEn: "You sold goods for export worth $1,000 (equivalent to 1,10,000৳) on letter of credit.", textBn: "আপনি রপ্তানির জন্য $১,০০০ (১,১০,০০০৳ সমতুল্য) পণ্য এলসি এর মাধ্যমে বিক্রি করেছেন।", debit: "Bank", credit: "Export Sales", amount: 110000, narration: "Export sale by LC" },
+  { id: 'A50', textEn: "You paid income tax advance 75,000৳ by cheque for next fiscal year.", textBn: "আপনি আগামী অর্থবছরের জন্য অগ্রিম আয়কর ৭৫,০০০৳ চেকের মাধ্যমে পরিশোধ করেছেন।", debit: "Advance Income Tax", credit: "Bank", amount: 75000, narration: "Paid advance income tax" }
+];
+
+    // ---------------------------
+    // Global State
+    // ---------------------------
+    let level = 'Beginner';
+    let currentQ = null;
+    let ledger = {};                 // { AccountName: { debit: number, credit: number } }
+    let accounts = new Set(["Cash","Sales","Purchase","Rahim","Karim","Rent Expense","Furniture","Ali","Drawings"]);
+    let streak = 0;
+    let timerId = null;
+    let timeLeft = 0;                // seconds for Advanced mode
+
+    // Initialize
+    renderAccountList();
+    switchLevel();                   // sets level defaults and loads random question
+    updateLedger();
+    updateTrialBalance();
+    updateFinalAccounts();
+    updateStreak(0, true);
+
+    // ---------------------------
+    // Level / Question handling
+    // ---------------------------
+    function switchLevel() {
+      level = document.getElementById('levelSelect').value;
+      const autoBtn = document.getElementById('autoFillBtn');
+      if (level === 'Beginner') {
+        autoBtn.style.display = 'inline-flex';
+        clearTimer();
+      } else {
+        autoBtn.style.display = 'none';
+        startTimer(); // per question
+      }
+      randomQuestion();
+    }
+
+    function restartLevel() {
+      clearTimer();
+      streak = 0;
+      updateStreak(0, true);
+      ledger = {};
+      document.getElementById('journalTable').innerHTML =
+        "<tr><th>Date | তারিখ</th><th>Debit A/C | ডেবিট</th><th>Credit A/C | ক্রেডিট</th><th>Amount | পরিমাণ</th><th>Narration | বিবরণ</th></tr>";
+      updateLedger();
+      updateTrialBalance();
+      updateFinalAccounts();
+      resetForm();
+      switchLevel();
+    }
+
+    function getBank() {
+      return level === 'Beginner' ? beginnerBank : advancedBank;
+    }
+
+    function randomQuestion() {
+      const bank = getBank();
+      const idx = Math.floor(Math.random() * bank.length);
+      currentQ = bank[idx];
+      showQuestion(currentQ);
+      if (level === 'Advanced') startTimer(); else showTimer('—');
+    }
+
+    function nextQuestion() {
+      randomQuestion();
+      resetForm();
+    }
+
+    function showQuestion(q) {
+      document.getElementById('questionText').innerHTML =
+        `(${q.id}) ${q.textEn}<br>${q.textBn}`;
+    }
+
+    function applyQuestionDefaults() {
+      if (level !== 'Beginner') return; // safety
+      if (!currentQ) { alert("No question loaded | প্রশ্ন নেই"); return; }
+      setSelectValue('debit', currentQ.debit);
+      setSelectValue('credit', currentQ.credit);
+      document.getElementById('amount').value = currentQ.amount;
+      document.getElementById('narration').value = currentQ.narration;
+      if (!document.getElementById('date').value) {
+        document.getElementById('date').value = new Date().toISOString().slice(0,10);
+      }
+    }
+
+    // ---------------------------
+    // Timer (Advanced)
+    // ---------------------------
+    function startTimer() {
+      clearTimer();
+      timeLeft = 60;
+      showTimer(formatSeconds(timeLeft));
+      timerId = setInterval(() => {
+        timeLeft -= 1;
+        showTimer(formatSeconds(timeLeft));
+        if (timeLeft <= 0) {
+          clearTimer();
+          giveFeedback(false, "Time’s up! | সময় শেষ!");
+          updateStreak(0);
+          nextQuestion();
+        }
+      }, 1000);
+    }
+
+    function clearTimer() {
+      if (timerId) clearInterval(timerId);
+      timerId = null;
+      timeLeft = 0;
+      showTimer(level === 'Advanced' ? formatSeconds(0) : '—');
+    }
+
+    function showTimer(text) {
+      document.getElementById('timerDisplay').textContent = text;
+    }
+
+    function formatSeconds(s) {
+      const m = Math.floor(s / 60);
+      const sec = s % 60;
+      return `${m}:${String(sec).padStart(2,'0')}`;
+    }
+
+    // ---------------------------
+    // Entry submission and check
+    // ---------------------------
+    function submitAnswer() {
+      if (!currentQ) { alert("Load a question first | আগে প্রশ্ন লোড করুন"); return; }
+
+      const debit = document.getElementById('debit').value;
+      const credit = document.getElementById('credit').value;
+      const amount = Number(document.getElementById('amount').value);
+      const date = document.getElementById('date').value || new Date().toISOString().slice(0,10);
+      const narration = document.getElementById('narration').value.trim();
+
+      if (!debit || !credit) { alert("Select both accounts | উভয় অ্যাকাউন্ট নির্বাচন করুন"); return; }
+      if (debit === credit) { alert("Debit and Credit cannot be same | ডেবিট ও ক্রেডিট এক হতে পারে না"); return; }
+      if (!amount || amount <= 0) { alert("Enter a valid amount | সঠিক পরিমাণ লিখুন"); return; }
+
+      const correct = (normalize(debit) === normalize(currentQ.debit)) &&
+                      (normalize(credit) === normalize(currentQ.credit)) &&
+                      (amount === currentQ.amount);
+
+      if (correct) {
+        addJournalRow(date, debit, credit, amount, narration);
+        postToLedger(debit, credit, amount);
+        updateLedger(); updateTrialBalance(); updateFinalAccounts();
+
+        updateStreak(streak + 1);
+        giveFeedback(true, friendlyStreakMessage(streak));
+
+        if (level === 'Advanced') { nextQuestion(); }
+      } else {
+        giveFeedback(false, "Incorrect. Try again. | ভুল হয়েছে, আবার চেষ্টা করুন।");
+        updateStreak(0);
+      }
+    }
+
+    function normalize(s) { return String(s || '').trim().toLowerCase(); }
+
+    function addJournalRow(date, debit, credit, amount, narration) {
+      const j = document.getElementById('journalTable');
+      const row = j.insertRow(-1);
+      row.classList.add('highlight');
+      row.insertCell(0).innerText = date;
+      row.insertCell(1).innerText = `${debit} A/C Dr.`;
+      row.insertCell(2).innerText = `To ${credit} A/C`;
+      row.insertCell(3).innerText = `${amount}৳`;
+      row.insertCell(4).innerText = narration || "";
+    }
+
+    function postToLedger(debit, credit, amount) {
+      if (!ledger[debit]) ledger[debit] = {debit:0, credit:0};
+      if (!ledger[credit]) ledger[credit] = {debit:0, credit:0};
+      ledger[debit].debit += amount;
+      ledger[credit].credit += amount;
+    }
+
+    function giveFeedback(ok, msg) {
+      const el = document.getElementById('feedback');
+      el.textContent = (ok ? "✅ " : "❌ ") + msg;
+    }
+
+    // ---------------------------
+    // Streaks & messages
+    // ---------------------------
+    function updateStreak(value, force=false) {
+      streak = value;
+      document.getElementById('streakCount').textContent = streak;
+      document.getElementById('streakMsg').textContent = streakMessage(streak);
+    }
+
+    function streakMessage(n) {
+      if (n >= 100) return "Century Streak / Perfect 100 🏆";
+      if (n >= 50) return "Ultra Streak";
+      if (n >= 30) return "Mega Streak";
+      if (n >= 20) return "Hot Streak 🔥";
+      if (n >= 10) return "Streak ×10";
+      if (n >= 5)  return "Combo ×5";
+      if (n >= 3)  return "Hat-trick ✅";
+      if (n >= 2)  return "Double / Combo ×2";
+      if (n >= 1)  return "Good Start / ভালো শুরু";
+      return "-";
+    }
+
+    function friendlyStreakMessage(current) {
+      const nextValue = current + 1;
+      return streakMessage(nextValue);
+    }
+
+    // ---------------------------
+    // Add Account Panel
+    // ---------------------------
+    function toggleAddPanel() {
+      const panel = document.getElementById('addPanel');
+      panel.style.display = panel.style.display === 'none' ? 'flex' : 'none';
+    }
+
+    function addAccount() {
+      const name = document.getElementById('newAccount').value.trim();
+      if (!name) return;
+      accounts.add(name);
+      addToDropdown('debit', name);
+      addToDropdown('credit', name);
+      document.getElementById('newAccount').value = "";
+      renderAccountList();
+      alert("Account added | অ্যাকাউন্ট যোগ হয়েছে");
+    }
+
+    function addToDropdown(id, name) {
+      const sel = document.getElementById(id);
+      const opt = document.createElement('option');
+      opt.value = name;
+      opt.textContent = `${name} A/C | ${name} হিসাব`;
+      sel.appendChild(opt);
+    }
+
+    function renderAccountList() {
+      const listDiv = document.getElementById('accountList');
+      listDiv.innerHTML = Array.from(accounts).sort().map(a => `<span class="badge" style="margin-right:6px;">${a}</span>`).join("");
+    }
+
+    // ---------------------------
+    // Books: Ledger / Trial Balance / Final Accounts / Balance Sheet
+    // ---------------------------
+    function updateLedger() {
+      const table = document.getElementById('ledgerTable');
+      table.innerHTML = "<tr><th>Account | অ্যাকাউন্ট</th><th>Debit (Dr) | ডেবিট</th><th>Credit (Cr) | ক্রেডিট</th></tr>";
+      for (let acc in ledger) {
+        const d = ledger[acc].debit || 0;
+        const c = ledger[acc].credit || 0;
+        table.innerHTML += `<tr><td>${acc}</td><td>${d}</td><td>${c}</td></tr>`;
+      }
+    }
+
+    function updateTrialBalance() {
+      const table = document.getElementById('trialTable');
+      table.innerHTML = "<tr><th>Account | অ্যাকাউন্ট</th><th>Debit | ডেবিট</th><th>Credit | ক্রেডিট</th></tr>";
+      let totalDebit = 0, totalCredit = 0;
+      for (let acc in ledger) {
+        const d = ledger[acc].debit || 0;
+        const c = ledger[acc].credit || 0;
+        table.innerHTML += `<tr><td>${acc}</td><td>${d}</td><td>${c}</td></tr>`;
+        totalDebit += d;
+        totalCredit += c;
+      }
+      table.innerHTML += `<tr><td><b>Total | মোট</b></td><td><b>${totalDebit}</b></td><td><b>${totalCredit}</b></td></tr>`;
+    }
+
+    function updateFinalAccounts() {
+      const sales = ledger["Sales"] ? (ledger["Sales"].credit || 0) : 0;
+      const purchase = ledger["Purchase"] ? (ledger["Purchase"].debit || 0) : 0;
+      const netProfit = sales - purchase;
+
+      const pl = document.getElementById('plTable');
+      pl.innerHTML = "<tr><th>Particulars | বিবরণ</th><th>Amount | পরিমাণ</th></tr>";
+      pl.innerHTML += `<tr><td>Sales | বিক্রয়</td><td>${sales}</td></tr>`;
+      pl.innerHTML += `<tr><td>Purchase | ক্রয়</td><td>${purchase}</td></tr>`;
+      pl.innerHTML += `<tr><td><b>Net Profit | নিট লাভ</b></td><td><b>${netProfit}</b></td></tr>`;
+
+      function bal(name) {
+        const d = ledger[name] ? (ledger[name].debit || 0) : 0;
+        const c = ledger[name] ? (ledger[name].credit || 0) : 0;
+        return d - c;
+      }
+      const cashBal = bal("Cash");
+      const rahimBal = bal("Rahim");
+      const karimBal = bal("Karim");
+
+      const bsA = document.getElementById('bsAssets');
+      const bsL = document.getElementById('bsLiab');
+      bsA.innerHTML = "<tr><th>Particulars | বিবরণ</th><th>Amount | পরিমাণ</th></tr>";
+      bsL.innerHTML = "<tr><th>Particulars | বিবরণ</th><th>Amount | পরিমাণ</th></tr>";
+
+      if (cashBal > 0) bsA.innerHTML += `<tr><td>Cash Balance | নগদ</td><td>${cashBal}</td></tr>`;
+      if (rahimBal > 0) bsA.innerHTML += `<tr><td>Accounts Receivable (Rahim) | পাওনা (রহিম)</td><td>${rahimBal}</td></tr>`;
+      if (karimBal > 0) bsA.innerHTML += `<tr><td>Accounts Receivable (Karim) | পাওনা (করিম)</td><td>${karimBal}</td></tr>`;
+
+      if (cashBal < 0) bsL.innerHTML += `<tr><td>Bank Overdraft / Cash payable | নগদ দায়</td><td>${Math.abs(cashBal)}</td></tr>`;
+      if (rahimBal < 0) bsL.innerHTML += `<tr><td>Customer Credit (Rahim) | গ্রাহক দায় (রহিম)</td><td>${Math.abs(rahimBal)}</td></tr>`;
+      if (karimBal < 0) bsL.innerHTML += `<tr><td>Customer Credit (Karim) | গ্রাহক দায় (করিম)</td><td>${Math.abs(karimBal)}</td></tr>`;
+
+      bsL.innerHTML += `<tr><td>Owner's Equity (Net Profit) | মালিকানা (নিট লাভ)</td><td>${netProfit}</td></tr>`;
+    }
+
+    // ---------------------------
+    // Helpers
+    // ---------------------------
+    function resetForm() {
+      document.getElementById('debit').value = "";
+      document.getElementById('credit').value = "";
+      document.getElementById('amount').value = "";
+      document.getElementById('date').value = "";
+      document.getElementById('narration').value = "";
+    }
+
+    function setSelectValue(id, value) {
+      const sel = document.getElementById(id);
+      let found = false;
+      for (let i = 0; i < sel.options.length; i++) {
+        if (sel.options[i].value === value) { found = true; break; }
+      }
+      if (!found) {
+        const opt = document.createElement('option');
+        opt.value = value;
+        opt.textContent = `${value} A/C | ${value} হিসাব`;
+        sel.appendChild(opt);
+        accounts.add(value);
+        renderAccountList();
+      }
+      sel.value = value;
+    }
+
+    // Keyboard shortcuts for PC
+    document.addEventListener('keydown', (e) => {
+      if (e.ctrlKey && e.key.toLowerCase() === 'r') { e.preventDefault(); restartLevel(); }
+      if (e.key.toLowerCase() === 'n') { e.preventDefault(); nextQuestion(); }
+      if (e.key === 'Enter') { e.preventDefault(); submitAnswer(); }
+      if (e.key.toLowerCase() === 'a' && level === 'Beginner') { e.preventDefault(); applyQuestionDefaults(); }
+      if (e.key === 'Escape') { e.preventDefault(); resetForm(); }
+    });
+  </script>
+  
+<footer style="
+  background: linear-gradient(135deg, #1a1f36 0%, #2d3748 100%);
+  color: #e2e8f0;
+  padding: 30px 20px;
+  margin-top: 40px;
+  border-top: 3px solid #3b82f6;
+">
+  <div style="
+    max-width: 900px;
+    margin: 0 auto;
+    text-align: center;
+  ">
+    
+    <!-- ব্র্যান্ড -->
+    <div style="margin-bottom: 25px;">
+      <h3 style="
+        color: #60a5fa;
+        margin: 0 0 10px 0;
+        font-size: 1.8rem;
+        font-weight: 700;
+      ">
+        Accounting Adventure
+      </h3>
+      <p style="
+        margin: 0;
+        opacity: 0.8;
+        font-size: 1rem;
+      ">
+        Game-Based Accounting Learning
+      </p>
+    </div>
+
+    <!-- যোগাযোগ -->
+    <div style="
+      background: rgba(255,255,255,0.05);
+      backdrop-filter: blur(10px);
+      border-radius: 12px;
+      padding: 20px;
+      margin: 0 auto 25px;
+      max-width: 500px;
+      border: 1px solid rgba(255,255,255,0.1);
+    ">
+      <p style="margin: 0 0 15px 0; font-weight: 600;">
+        📧 israfil.azad@yahoo.com
+      </p>
+      <a href="https://www.facebook.com/share/1B8tjjtbqy/" 
+         target="_blank"
+         style="
+           display: inline-flex;
+           align-items: center;
+           gap: 8px;
+           background: #2563eb;
+           color: white;
+           padding: 10px 20px;
+           border-radius: 8px;
+           text-decoration: none;
+           font-weight: 600;
+           transition: all 0.3s ease;
+         "
+         onmouseover="this.style.background='#1d4ed8'"
+         onmouseout="this.style.background='#2563eb'">
+        <span>📘</span>
+        Connect on Facebook
+      </a>
+    </div>
+
+    <!-- কপিরাইট -->
+    <div style="
+      border-top: 1px solid rgba(255,255,255,0.1);
+      padding-top: 20px;
+      font-size: 0.9rem;
+      opacity: 0.7;
+    ">
+      <p style="margin: 0 0 5px 0;">
+        © 2025 Accounting Adventure. All Rights Reserved.
+      </p>
+      <p style="margin: 0;">
+        Crafted with ❤️ in Bangladesh
+      </p>
+    </div>
+
+  </div>
+</footer>
+</body>
+</html>
